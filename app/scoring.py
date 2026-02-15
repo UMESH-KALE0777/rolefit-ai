@@ -11,3 +11,4 @@ def calculate_similarity(resume_text, job_description):
     similarity_score = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])
 
     return round(float(similarity_score[0][0]) * 100, 2)
+
