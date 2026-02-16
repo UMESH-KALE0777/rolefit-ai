@@ -1,7 +1,9 @@
 import streamlit as st
 import os
 import sys
-from app.scoring import calculate_similarity
+from app.scoring import calculate_similarity 
+from app.skill_extractor import extract_skills
+
 
 # ---- Fix Import Path (Important for your folder structure) ----
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -82,3 +84,26 @@ if uploaded_file is not None and job_description:
     finally:
         if os.path.exists("temp_resume.pdf"):
             os.remove("temp_resume.pdf")
+
+
+# Extract skills
+resume_skills = extract_skills(cleaned_resume)
+jd_skills = extract_skills(cleaned_jd)
+
+matched_skills = list(set(resume_skills) & set(jd_skills))
+missing_skills = list(set(jd_skills) - set(resume_skills))
+
+if len(jd_skills) > 0:
+    skill_match_percentage = round((len(matched_skills) / len(jd_skills)) * 100, 2)
+else:
+    skill_match_percentage = 0
+
+st.subheader("🧠 Skill Match Analysis")
+
+st.write("### ✅ Matched Skills")
+st.write(matched_skills if matched_skills else "No matching skills found")
+
+st.write("### ❌ Missing Skills")
+st.write(missing_skills if missing_skills else "No missing skills")
+
+st.info(f"Skill Match: {skill_match_percentage}%")
