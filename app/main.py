@@ -1,15 +1,14 @@
 import streamlit as st
 import os
 import sys
-from app.scoring import calculate_similarity 
-from app.skill_extractor import extract_skills
 
-
-# ---- Fix Import Path (Important for your folder structure) ----
+# ---- Fix Import Path ----
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from utils.pdf_reader import extract_text_from_pdf
 from app.preprocessing import clean_text
+from app.scoring import calculate_similarity
+from app.skill_extractor import extract_skills
 
 # ---- Page Config ----
 st.set_page_config(
@@ -18,92 +17,79 @@ st.set_page_config(
     layout="wide"
 )
 
-# ---- UI Header ----
-st.title("📄 RoleFit AI – Resume Preprocessing Demo")
-st.markdown("Upload a resume to extract and preprocess text.")
+st.title("📄 RoleFit AI – Intelligent Resume Screening")
+st.markdown("Upload a resume and paste a job description to evaluate candidate fit.")
 
-# ---- File Upload ----
+# ---- Inputs ----
 uploaded_file = st.file_uploader("Upload Resume (PDF)", type=["pdf"])
 
-if uploaded_file is not None:
+st.subheader("📌 Enter Job Description")
+job_description = st.text_area("Paste Job Description Here")
+
+# ---- Main Processing ----
+if uploaded_file is not None and job_description:
 
     try:
-        # Save temporary file
+        # Save temporary resume file
         temp_path = "temp_resume.pdf"
-
         with open(temp_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
 
-        # Extract text
+        # Extract raw text
         raw_text = extract_text_from_pdf(temp_path)
 
         if not raw_text.strip():
-            st.error("❌ Could not extract text from this PDF.")
+            st.error("❌ Could not extract text from the uploaded PDF.")
         else:
-            # Display Raw Text
-            st.subheader("📌 Raw Extracted Text (Preview)")
-            st.text_area("Raw Text", raw_text[:1000], height=250)
+            # Clean resume and JD
+            cleaned_resume = clean_text(raw_text)
+            cleaned_jd = clean_text(job_description)
 
-            # Clean Text
-            cleaned_text = clean_text(raw_text)
+            # ---- Similarity Score ----
+            similarity = calculate_similarity(cleaned_resume, cleaned_jd)
 
-            # Display Cleaned Text
-            st.subheader("🧹 Cleaned & Processed Text (Preview)")
-            st.text_area("Cleaned Text", cleaned_text[:1000], height=250)
+            st.subheader("🎯 Overall Match Score")
+            st.success(f"Resume matches the job description by {similarity}%")
+
+            # ---- Skill Extraction ----
+            resume_skills = extract_skills(cleaned_resume)
+            jd_skills = extract_skills(cleaned_jd)
+
+            matched_skills = list(set(resume_skills) & set(jd_skills))
+            missing_skills = list(set(jd_skills) - set(resume_skills))
+
+            if len(jd_skills) > 0:
+                skill_match_percentage = round((len(matched_skills) / len(jd_skills)) * 100, 2)
+            else:
+                skill_match_percentage = 0
+
+            # ---- Skill Display ----
+            st.subheader("🧠 Skill Match Analysis")
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.markdown("### ✅ Matched Skills")
+                if matched_skills:
+                    for skill in matched_skills:
+                        st.write(f"- {skill}")
+                else:
+                    st.write("No matching skills found")
+
+            with col2:
+                st.markdown("### ❌ Missing Skills")
+                if missing_skills:
+                    for skill in missing_skills:
+                        st.write(f"- {skill}")
+                else:
+                    st.write("No missing skills")
+
+            st.info(f"Skill Match Percentage: {skill_match_percentage}%")
 
     except Exception as e:
         st.error(f"⚠️ An error occurred: {str(e)}")
 
     finally:
-        # Remove temp file
+        # Remove temporary file
         if os.path.exists("temp_resume.pdf"):
             os.remove("temp_resume.pdf")
-st.subheader("📌 Enter Job Description")
-job_description = st.text_area("Paste Job Description Here")
-
-if uploaded_file is not None and job_description:
-
-    try:
-        temp_path = "temp_resume.pdf"
-
-        with open(temp_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
-
-        raw_text = extract_text_from_pdf(temp_path)
-        cleaned_resume = clean_text(raw_text)
-        cleaned_jd = clean_text(job_description)
-
-        similarity = calculate_similarity(cleaned_resume, cleaned_jd)
-
-        st.subheader("🎯 Match Score")
-        st.success(f"Resume matches the job description by {similarity}%")
-
-    except Exception as e:
-        st.error(f"Error: {str(e)}")
-
-    finally:
-        if os.path.exists("temp_resume.pdf"):
-            os.remove("temp_resume.pdf")
-
-
-# Extract skills
-resume_skills = extract_skills(cleaned_resume)
-jd_skills = extract_skills(cleaned_jd)
-
-matched_skills = list(set(resume_skills) & set(jd_skills))
-missing_skills = list(set(jd_skills) - set(resume_skills))
-
-if len(jd_skills) > 0:
-    skill_match_percentage = round((len(matched_skills) / len(jd_skills)) * 100, 2)
-else:
-    skill_match_percentage = 0
-
-st.subheader("🧠 Skill Match Analysis")
-
-st.write("### ✅ Matched Skills")
-st.write(matched_skills if matched_skills else "No matching skills found")
-
-st.write("### ❌ Missing Skills")
-st.write(missing_skills if missing_skills else "No missing skills")
-
-st.info(f"Skill Match: {skill_match_percentage}%")
