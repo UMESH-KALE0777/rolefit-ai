@@ -2,54 +2,51 @@ import streamlit as st
 import os
 import sys
 
-# ---- Fix Import Path ----
+# Fix import path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from utils.pdf_reader import extract_text_from_pdf
 from app.preprocessing import clean_text
-from app.scoring import calculate_similarity
 from app.skill_extractor import extract_skills
-
-# ---- Page Config ----
-st.set_page_config(
-    page_title="RoleFit AI",
-    page_icon="📄",
-    layout="wide"
+from app.scoring import (
+    calculate_similarity,
+    compute_final_score,
+    generate_explanation
 )
 
-st.title("📄 RoleFit AI – Intelligent Resume Screening")
-st.markdown("Upload a resume and paste a job description to evaluate candidate fit.")
+# Page config
+st.set_page_config(page_title="RoleFit AI", page_icon="📄", layout="wide")
 
-# ---- Inputs ----
+st.title("📄 RoleFit AI – Explainable Resume Screening")
+
+# Inputs
 uploaded_file = st.file_uploader("Upload Resume (PDF)", type=["pdf"])
-
 st.subheader("📌 Enter Job Description")
 job_description = st.text_area("Paste Job Description Here")
 
-# ---- Main Processing ----
+# Main logic
 if uploaded_file is not None and job_description:
 
     try:
-        # Save temporary resume file
         temp_path = "temp_resume.pdf"
+
         with open(temp_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
 
-        # Extract raw text
+        # Extract text
         raw_text = extract_text_from_pdf(temp_path)
 
         if not raw_text.strip():
-            st.error("❌ Could not extract text from the uploaded PDF.")
+            st.error("Could not extract text from PDF.")
         else:
-            # Clean resume and JD
+            # Clean text
             cleaned_resume = clean_text(raw_text)
             cleaned_jd = clean_text(job_description)
 
-            # ---- Similarity Score ----
-            similarity = calculate_similarity(cleaned_resume, cleaned_jd)
-
-            st.subheader("🎯 Overall Match Score")
-            st.success(f"Resume matches the job description by {similarity}%")
+            # ---- Semantic Similarity (0–1) ----
+            semantic_similarity = calculate_similarity(
+                cleaned_resume, cleaned_jd
+            )
 
             # ---- Skill Extraction ----
             resume_skills = extract_skills(cleaned_resume)
@@ -59,37 +56,41 @@ if uploaded_file is not None and job_description:
             missing_skills = list(set(jd_skills) - set(resume_skills))
 
             if len(jd_skills) > 0:
-                skill_match_percentage = round((len(matched_skills) / len(jd_skills)) * 100, 2)
+                skill_score = len(matched_skills) / len(jd_skills)
             else:
-                skill_match_percentage = 0
+                skill_score = 0
 
-            # ---- Skill Display ----
-            st.subheader("🧠 Skill Match Analysis")
+            # ---- Hybrid Final Score ----
+            final_score = compute_final_score(
+                semantic_similarity,
+                skill_score
+            )
 
-            col1, col2 = st.columns(2)
+            # ---- Explanation ----
+            explanation = generate_explanation(
+                semantic_similarity,
+                skill_score,
+                missing_skills
+            )
 
-            with col1:
-                st.markdown("### ✅ Matched Skills")
-                if matched_skills:
-                    for skill in matched_skills:
-                        st.write(f"- {skill}")
-                else:
-                    st.write("No matching skills found")
+            # ---- Display ----
+            st.subheader("🎯 Overall Match Score")
+            st.metric("Final Score", f"{final_score*100:.0f}%")
 
-            with col2:
-                st.markdown("### ❌ Missing Skills")
-                if missing_skills:
-                    for skill in missing_skills:
-                        st.write(f"- {skill}")
-                else:
-                    st.write("No missing skills")
+            st.subheader("📊 Score Breakdown")
 
-            st.info(f"Skill Match Percentage: {skill_match_percentage}%")
+            st.write("Semantic Similarity")
+            st.progress(semantic_similarity)
+
+            st.write("Skill Coverage")
+            st.progress(skill_score)
+
+            st.subheader("🧠 AI Explanation")
+            st.info(explanation)
 
     except Exception as e:
-        st.error(f"⚠️ An error occurred: {str(e)}")
+        st.error(f"Error occurred: {str(e)}")
 
     finally:
-        # Remove temporary file
         if os.path.exists("temp_resume.pdf"):
             os.remove("temp_resume.pdf")
