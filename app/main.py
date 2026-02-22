@@ -98,6 +98,7 @@ if uploaded_file is not None and job_description:
         if os.path.exists("temp_resume.pdf"):
             os.remove("temp_resume.pdf")
 
+
 # ---- Bias Detection ----
 if job_description:
 
