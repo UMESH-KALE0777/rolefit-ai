@@ -9,6 +9,7 @@ from utils.pdf_reader import extract_text_from_pdf
 from app.preprocessing import clean_text
 from app.skill_extractor import extract_skills
 from utils.bias_detector import detect_bias
+from utils.bias_detector import detect_bias, suggest_rewrite
 
 from app.scoring import (
     calculate_similarity,
@@ -99,25 +100,34 @@ if uploaded_file is not None and job_description:
 
 # ---- Bias Detection ----
 if job_description:
+
     bias_report = detect_bias(job_description)
 
     st.subheader("⚖️ Bias Detection Report")
 
     if bias_report["bias_score"] == 0:
-        st.success("No obvious biased language detected in the job description.")
+        st.success("No obvious biased language detected.")
     else:
-        st.warning(f"Bias Score: {bias_report['bias_score']} / 10")
+        st.warning(
+            f"Bias Score: {bias_report['bias_score']} / 10 "
+            f"({bias_report['severity']} Risk)"
+        )
 
-        if bias_report["masculine_words"]:
-            st.write("Masculine-coded words detected:")
-            st.write(", ".join(bias_report["masculine_words"]))
+        st.write("Flagged Words & Suggested Replacements:")
 
-        if bias_report["feminine_words"]:
-            st.write("Feminine-coded words detected:")
-            st.write(", ".join(bias_report["feminine_words"]))
+        for word, replacement in bias_report["found_bias"].items():
+            st.write(f"- '{word}' → consider replacing with '{replacement}'")
 
-        if bias_report["age_phrases"]:
-            st.write("Age-biased phrases detected:")
-            st.write(", ".join(bias_report["age_phrases"]))
+        # ---- Fix My JD Button ----
+        if st.button("🔄 Fix My JD"):
+            improved_jd = suggest_rewrite(
+                job_description,
+                bias_report["found_bias"]
+            )
 
-        st.info("Consider using more neutral and inclusive language.")
+            st.subheader("✨ Suggested Neutral Version")
+            st.text_area("Rewritten JD", improved_jd, height=200)
+
+    st.info(
+        "RoleFit AI does not use candidate names or demographic attributes in scoring."
+    )
