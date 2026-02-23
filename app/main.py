@@ -58,6 +58,24 @@ if uploaded_file is not None and job_description:
             matched_skills = list(set(resume_skills) & set(jd_skills))
             missing_skills = list(set(jd_skills) - set(resume_skills))
 
+            # ---- Skill Extraction ----
+resume_skills = extract_skills(cleaned_resume)
+jd_skills = extract_skills(cleaned_jd)
+
+matched_skills = list(set(resume_skills) & set(jd_skills))
+missing_skills = list(set(jd_skills) - set(resume_skills))
+
+# ---- Interview Questions ----
+questions = generate_questions(missing_skills)
+
+st.subheader("🎤 Suggested Interview Questions")
+
+if questions:
+    for q in questions:
+        st.write(f"- {q}")
+else:
+    st.write("Candidate has strong coverage. Consider behavioral questions.")
+
             if len(jd_skills) > 0:
                 skill_score = len(matched_skills) / len(jd_skills)
             else:
