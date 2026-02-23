@@ -10,7 +10,7 @@ from app.preprocessing import clean_text
 from app.skill_extractor import extract_skills
 from utils.bias_detector import detect_bias
 from utils.bias_detector import detect_bias, suggest_rewrite
-
+from utils.interview_generator import generate_questions
 from app.scoring import (
     calculate_similarity,
     compute_final_score,
