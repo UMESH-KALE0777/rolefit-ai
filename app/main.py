@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 import sys
+import plotly.graph_objects as go
 
 # Fix import path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -125,7 +126,6 @@ if uploaded_file is not None and job_description:
 
             st.subheader("🧠 AI Explanation")
             st.info(explanation)
-
             # ---------------- INTERVIEW QUESTIONS ----------------
 
             questions = generate_questions(
@@ -150,9 +150,50 @@ if uploaded_file is not None and job_description:
                 for q in questions["behavioral"]:
                     st.write(f"- {q}")
 
+            # ---------------- ANALYTICS DASHBOARD ----------------
+
+            st.subheader("📈 Candidate Analytics Dashboard")
+
+            fig = go.Figure()
+
+            fig.add_trace(go.Scatterpolar(
+                r=[semantic_similarity, skill_score, final_score],
+                theta=["Semantic Similarity", "Skill Coverage", "Final Score"],
+                fill='toself'
+            ))
+
+            fig.update_layout(
+                polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+                showlegend=False
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+
+            # Skill Bar Chart
+            if jd_skills:
+                skill_status = {
+                    "Matched Skills": len(matched_skills),
+                    "Missing Skills": len(missing_skills)
+                }
+
+                bar_fig = go.Figure(
+                    data=[go.Bar(
+                        x=list(skill_status.keys()),
+                        y=list(skill_status.values())
+                    )]
+                )
+
+                bar_fig.update_layout(
+                    title="Skill Coverage Overview",
+                    yaxis_title="Number of Skills"
+                )
+
+                st.plotly_chart(bar_fig, use_container_width=True)
+
     except Exception as e:
         st.error(f"Error occurred: {str(e)}")
 
     finally:
         if os.path.exists("temp_resume.pdf"):
             os.remove("temp_resume.pdf")
+
