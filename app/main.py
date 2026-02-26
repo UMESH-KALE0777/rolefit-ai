@@ -14,7 +14,8 @@ from utils.interview_generator import generate_questions
 from app.scoring import (
     calculate_similarity,
     compute_final_score,
-    generate_explanation
+    generate_explanation,
+    get_recommendation
 )
 
 # Page config
@@ -104,6 +105,7 @@ if uploaded_file is not None and job_description:
                 semantic_similarity,
                 skill_score
             )
+            recommendation = get_recommendation(final_score)
 
             # ---- Explanation ----
             explanation = generate_explanation(
@@ -114,6 +116,32 @@ if uploaded_file is not None and job_description:
 
             # ---------------- DISPLAY SCORES ----------------
 
+            st.subheader("📊 Evaluation Summary")
+            st.metric("Final Score", f"{final_score*100:.0f}%")
+
+            st.subheader("📌 Hiring Recommendation")
+
+            if recommendation == "Strongly Recommended":
+                st.success(recommendation)
+            elif recommendation == "Recommended":
+                st.info(recommendation)
+            elif recommendation == "Consider with Caution":
+                st.warning(recommendation)
+            else:
+                st.error(recommendation)
+
+            st.subheader("🎯 Overall Match Score")
+            st.metric("Final Score", f"{final_score*100:.0f}%")
+
+            st.subheader("📊 Score Breakdown")
+            st.write("Semantic Similarity")
+            st.progress(semantic_similarity)
+
+            st.write("Skill Coverage")
+            st.progress(skill_score)
+
+            st.subheader("🧠 AI Explanation")
+            st.info(explanation)
             # ---------------- INTERVIEW QUESTIONS ----------------
 
             questions = generate_questions(

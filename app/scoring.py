@@ -43,3 +43,16 @@ def generate_explanation(semantic_score, skill_score, missing_skills):
         verdict += f" Missing skills: {', '.join(missing_skills)}."
 
     return verdict
+
+def get_recommendation(final_score):
+    """
+    Returns a recommendation label based on the final score.
+    """
+    if final_score >= 0.80:
+        return "Strongly Recommended"
+    elif final_score >= 0.65:
+        return "Recommended"
+    elif final_score >= 0.50:
+        return "Consider with Caution"
+    else:
+        return "Not Recommended"
