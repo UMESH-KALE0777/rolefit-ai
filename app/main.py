@@ -114,18 +114,6 @@ if uploaded_file is not None and job_description:
 
             # ---------------- DISPLAY SCORES ----------------
 
-            st.subheader("🎯 Overall Match Score")
-            st.metric("Final Score", f"{final_score*100:.0f}%")
-
-            st.subheader("📊 Score Breakdown")
-            st.write("Semantic Similarity")
-            st.progress(semantic_similarity)
-
-            st.write("Skill Coverage")
-            st.progress(skill_score)
-
-            st.subheader("🧠 AI Explanation")
-            st.info(explanation)
             # ---------------- INTERVIEW QUESTIONS ----------------
 
             questions = generate_questions(
