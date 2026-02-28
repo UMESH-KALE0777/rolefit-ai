@@ -213,3 +213,15 @@ if uploaded_file is not None and job_description:
         if os.path.exists("temp_resume.pdf"):
             os.remove("temp_resume.pdf")
 
+
+
+import pandas as pd
+
+# Convert to DataFrame
+df = pd.DataFrame(results)
+
+# Sort by Final Score descending
+df = df.sort_values(by="Final Score", ascending=False)
+
+st.subheader("🏆 Candidate Ranking Leaderboard")
+st.dataframe(df, use_container_width=True)
