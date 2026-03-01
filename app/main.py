@@ -25,7 +25,11 @@ st.title("📄 RoleFit AI – Intelligent Hiring Assistant")
 
 # ---------------- INPUTS ----------------
 
-uploaded_file = st.file_uploader("Upload Resume (PDF)", type=["pdf"])
+uploaded_files = st.file_uploader(
+    "Upload Resumes (PDF)",
+    type=["pdf"],
+    accept_multiple_files=True
+)
 st.subheader("📌 Enter Job Description")
 job_description = st.text_area("Paste Job Description Here")
 
@@ -65,19 +69,23 @@ if job_description:
 
 # ---------------- MAIN SCORING LOGIC ----------------
 
-if uploaded_file is not None and job_description:
+if uploaded_files and job_description:
 
     try:
-        temp_path = "temp_resume.pdf"
+        results = []
 
-        with open(temp_path, "wb") as f:
-            f.write(uploaded_file.getbuffer())
+        for uploaded_file in uploaded_files:
+            temp_path = uploaded_file.name
 
-        raw_text = extract_text_from_pdf(temp_path)
+            with open(temp_path, "wb") as f:
+                f.write(uploaded_file.getbuffer())
 
-        if not raw_text.strip():
-            st.error("Could not extract text from PDF.")
-        else:
+            raw_text = extract_text_from_pdf(temp_path)
+            
+            if not raw_text.strip():
+                st.error(f"Could not extract text from PDF: {uploaded_file.name}")
+                continue
+
             # Clean text
             cleaned_resume = clean_text(raw_text)
             cleaned_jd = clean_text(job_description)
@@ -105,123 +113,34 @@ if uploaded_file is not None and job_description:
                 semantic_similarity,
                 skill_score
             )
-            recommendation = get_recommendation(final_score)
 
-            # ---- Explanation ----
-            explanation = generate_explanation(
-                semantic_similarity,
-                skill_score,
-                missing_skills
-            )
+            results.append({
+                "Candidate": uploaded_file.name,
+                "Final Score": round(final_score * 100, 2),
+                "Semantic": round(semantic_similarity * 100, 2),
+                "Skill Coverage": round(skill_score * 100, 2),
+                "Missing Skills": ", ".join(missing_skills)
+            })
 
-            # ---------------- DISPLAY SCORES ----------------
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
 
-            st.subheader("📊 Evaluation Summary")
-            st.metric("Final Score", f"{final_score*100:.0f}%")
+        # ---------------- DISPLAY RANKING ----------------
+        if results:
+            import pandas as pd
 
-            st.subheader("📌 Hiring Recommendation")
+            # Convert to DataFrame
+            df = pd.DataFrame(results)
 
-            if recommendation == "Strongly Recommended":
-                st.success(recommendation)
-            elif recommendation == "Recommended":
-                st.info(recommendation)
-            elif recommendation == "Consider with Caution":
-                st.warning(recommendation)
-            else:
-                st.error(recommendation)
+            # Sort by Final Score descending
+            df = df.sort_values(by="Final Score", ascending=False)
 
-            st.subheader("🎯 Overall Match Score")
-            st.metric("Final Score", f"{final_score*100:.0f}%")
-
-            st.subheader("📊 Score Breakdown")
-            st.write("Semantic Similarity")
-            st.progress(semantic_similarity)
-
-            st.write("Skill Coverage")
-            st.progress(skill_score)
-
-            st.subheader("🧠 AI Explanation")
-            st.info(explanation)
-            # ---------------- INTERVIEW QUESTIONS ----------------
-
-            questions = generate_questions(
-                missing_skills,
-                role_title="Data Engineer Intern"
-            )
-
-            st.subheader("🎤 Suggested Interview Questions")
-
-            with st.expander("🎯 Skill-Gap Questions"):
-                if questions["skill_gap"]:
-                    for q in questions["skill_gap"]:
-                        st.write(f"- {q}")
-                else:
-                    st.write("No major skill gaps detected.")
-
-            with st.expander("🛠 Technical Questions"):
-                for q in questions["technical"]:
-                    st.write(f"- {q}")
-
-            with st.expander("🧠 Behavioral Questions"):
-                for q in questions["behavioral"]:
-                    st.write(f"- {q}")
-
-            # ---------------- ANALYTICS DASHBOARD ----------------
-
-            st.subheader("📈 Candidate Analytics Dashboard")
-
-            fig = go.Figure()
-
-            fig.add_trace(go.Scatterpolar(
-                r=[semantic_similarity, skill_score, final_score],
-                theta=["Semantic Similarity", "Skill Coverage", "Final Score"],
-                fill='toself'
-            ))
-
-            fig.update_layout(
-                polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
-                showlegend=False
-            )
-
-            st.plotly_chart(fig, use_container_width=True)
-
-            # Skill Bar Chart
-            if jd_skills:
-                skill_status = {
-                    "Matched Skills": len(matched_skills),
-                    "Missing Skills": len(missing_skills)
-                }
-
-                bar_fig = go.Figure(
-                    data=[go.Bar(
-                        x=list(skill_status.keys()),
-                        y=list(skill_status.values())
-                    )]
-                )
-
-                bar_fig.update_layout(
-                    title="Skill Coverage Overview",
-                    yaxis_title="Number of Skills"
-                )
-
-                st.plotly_chart(bar_fig, use_container_width=True)
+            st.subheader("🏆 Candidate Ranking Leaderboard")
+            st.dataframe(df, use_container_width=True)
 
     except Exception as e:
         st.error(f"Error occurred: {str(e)}")
 
-    finally:
-        if os.path.exists("temp_resume.pdf"):
-            os.remove("temp_resume.pdf")
 
 
 
-import pandas as pd
-
-# Convert to DataFrame
-df = pd.DataFrame(results)
-
-# Sort by Final Score descending
-df = df.sort_values(by="Final Score", ascending=False)
-
-st.subheader("🏆 Candidate Ranking Leaderboard")
-st.dataframe(df, use_container_width=True)
