@@ -13,3 +13,9 @@ Updated by Umesh kale
 RoleFit AI is an explainable AI-powered hiring assistant that ranks candidates, detects bias in job descriptions, analyzes skill gaps, and generates structured interview questions.
 
 
+## 📂 Project Structure
+
+app/ → Core application logic  
+utils/ → NLP, bias detection, interview generation  
+data/ → Skill dictionaries  
+venv/ → Virtual environment (excluded)  
