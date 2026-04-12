@@ -44,7 +44,7 @@ Gender-coded terms
 
 Age-biased phrases
 
-It can also generate a neutral rewrite of the job description.
+It can also generate a neutral rewrite of the job description
 
 🎤 Automated Interview Question Generator
 
