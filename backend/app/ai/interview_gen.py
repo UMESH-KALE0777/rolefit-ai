@@ -1,11 +1,11 @@
-import google.generativeai as genai
+from google import genai
 from loguru import logger
 from app.core.config import get_settings
 
 settings = get_settings()
 
 # ── Configure Gemini ─────────────────────────────────
-genai.configure(api_key=settings.gemini_api_key)
+client = genai.Client(api_key=settings.gemini_api_key)
 
 # ── Fallback questions for common skills ─────────────
 FALLBACK_QUESTIONS = {
@@ -81,7 +81,7 @@ FALLBACK_QUESTIONS = {
     ],
     "mongodb": [
         "What is the difference between SQL and NoSQL databases?",
-        "Explain MongoDB's aggregation pipeline.",
+        "Explain MongoDB aggregation pipeline.",
         "How does MongoDB handle transactions?"
     ],
 }
@@ -90,8 +90,6 @@ FALLBACK_QUESTIONS = {
 def generate_questions_with_gemini(skill: str) -> list:
     """Generate interview questions using Gemini API."""
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        
         prompt = f"""Generate exactly 3 technical interview questions 
 for a candidate who is missing the skill: {skill}
 
@@ -102,54 +100,53 @@ Rules:
 - Return only the 3 questions, numbered 1. 2. 3.
 - No extra text or explanation"""
 
-        response = model.generate_content(prompt)
-        
+        response = client.models.generate_content(
+            model="gemini-2.0-flash-lite",
+            contents=prompt
+        )
+
         # Parse response into list
         lines = response.text.strip().split('\n')
         questions = []
-        
+
         for line in lines:
             line = line.strip()
             if line and (
-                line[0].isdigit() or 
+                line[0].isdigit() or
                 line.startswith('-') or
                 line.startswith('•')
             ):
-                # Clean numbering
                 cleaned = line.lstrip('0123456789.-•) ').strip()
                 if cleaned:
                     questions.append(cleaned)
-        
+
         if len(questions) >= 2:
             logger.info(
                 f"Gemini generated {len(questions)} "
                 f"questions for: {skill}"
             )
             return questions[:3]
-        
+
     except Exception as e:
         logger.warning(
             f"Gemini failed for {skill}: {e}. "
             f"Using fallback questions."
         )
-    
+
     return None
 
 
 def get_fallback_questions(skill: str) -> list:
     """Get hardcoded questions for common skills."""
     skill_lower = skill.lower()
-    
-    # Direct match
+
     if skill_lower in FALLBACK_QUESTIONS:
         return FALLBACK_QUESTIONS[skill_lower]
-    
-    # Partial match
+
     for key in FALLBACK_QUESTIONS:
         if key in skill_lower or skill_lower in key:
             return FALLBACK_QUESTIONS[key]
-    
-    # Generic fallback
+
     return [
         f"What is your experience level with {skill}?",
         f"Can you describe a project where you used {skill}?",
@@ -163,21 +160,19 @@ def generate_interview_questions(missing_skills: list) -> list:
     Uses Gemini API with fallback to hardcoded questions.
     Max 5 skills = max 15 questions.
     """
-    
+
     results = []
     top_skills = missing_skills[:5]
-    
+
     for skill in top_skills:
-        # Try Gemini first
         questions = generate_questions_with_gemini(skill)
-        
-        # Fallback if Gemini fails
+
         if not questions:
             questions = get_fallback_questions(skill)
-        
+
         results.append({
             "skill": skill,
             "questions": questions
         })
-    
+
     return results
