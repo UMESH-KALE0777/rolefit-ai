@@ -41,6 +41,10 @@ def extract_skills(text: str) -> dict:
         found_in_category = []
         
         for skill in skills:
+            # Skip single character skills
+            if len(skill) <= 1:
+                continue
+                
             # Word boundary pattern
             pattern = r'\b' + re.escape(skill.lower()) + r'\b'
             

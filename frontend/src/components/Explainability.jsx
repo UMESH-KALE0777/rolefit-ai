@@ -7,43 +7,43 @@ export default function Explainability({ explainability, candidate }) {
 
             {/* Candidate Info */}
             {candidate && (
-                <div className="bg-gray-800 rounded-xl p-4 mb-4">
-                    <p className="text-gray-400 text-xs mb-2 uppercase tracking-wide">
-                        Candidate
-                    </p>
-                    <div className="space-y-1">
-                        {candidate.name && (
-                            <p className="text-white font-semibold">{candidate.name}</p>
-                        )}
-                        {candidate.email && (
-                            <p className="text-gray-400 text-sm">{candidate.email}</p>
-                        )}
-                        {candidate.phone && (
-                            <p className="text-gray-400 text-sm">{candidate.phone}</p>
-                        )}
-            {candidate.linkedin && (
-              <a
-                href={"https://" + candidate.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-400 text-sm hover:underline block"
-              >
-                {candidate.linkedin}
-              </a>
+              <div className="bg-gray-800 rounded-xl p-4 mb-4">
+                <p className="text-gray-400 text-xs mb-2 uppercase tracking-wide">
+                  Candidate
+                </p>
+                <div className="space-y-1">
+                  {candidate.name && candidate.name.length < 50 && (
+                    <p className="text-white font-semibold">{candidate.name}</p>
+                  )}
+                  {candidate.email && (
+                    <p className="text-gray-400 text-sm">{candidate.email}</p>
+                  )}
+                  {candidate.phone && candidate.phone.length < 20 && (
+                    <p className="text-gray-400 text-sm">{candidate.phone}</p>
+                  )}
+                  {candidate.linkedin && (
+                    <a
+                      href={"https://" + candidate.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 text-sm hover:underline block"
+                    >
+                      {candidate.linkedin}
+                    </a>
+                  )}
+                  {candidate.github && (
+                    <a
+                      href={"https://" + candidate.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-400 text-sm hover:underline block"
+                    >
+                      {candidate.github}
+                    </a>
+                  )}
+                </div>
+              </div>
             )}
-            {candidate.github && (
-              <a
-                href={"https://" + candidate.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-400 text-sm hover:underline block"
-              >
-                {candidate.github}
-              </a>
-            )}
-        </div>
-    </div>
-)}
 
 {/* Why this score */ }
 <div className="bg-blue-950 border border-blue-800 rounded-xl p-4 mb-4">
