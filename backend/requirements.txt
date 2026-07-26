@@ -5,12 +5,12 @@ pydantic
 pydantic-settings
 pdfplumber
 pymupdf
-sentence-transformers
-torch
+spacy
 scikit-learn
 numpy
 nltk
-google-generativeai==0.8.5
+google-genai
 python-dotenv
 slowapi
 loguru
+requests
