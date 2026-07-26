@@ -4,9 +4,8 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
-# ── Configure Gemini ─────────────────────────────────
-genai.configure(api_key=settings.gemini_api_key)
-model = genai.GenerativeModel("gemini-2.5-flash")
+# ── Configure Gemini client ──────────────────────────
+client = genai.Client(api_key=settings.gemini_api_key)
 
 # ── Fallback questions for common skills ─────────────
 FALLBACK_QUESTIONS = {
@@ -101,7 +100,10 @@ Rules:
 - Return only the 3 questions, numbered 1. 2. 3.
 - No extra text or explanation"""
 
-        response = model.generate_content(contents=prompt)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash-lite",
+            contents=prompt
+        )
 
         # Parse response into list
         lines = response.text.strip().split('\n')
