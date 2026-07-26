@@ -11,7 +11,7 @@ torch
 scikit-learn
 numpy
 nltk
-google-genai
+google-generativeai==0.8.5
 python-dotenv
 slowapi
 loguru
