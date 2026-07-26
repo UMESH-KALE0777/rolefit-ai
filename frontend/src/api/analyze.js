@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE = 'http://127.0.0.1:8000'
+const API_BASE = 'https://rolefit-ai-xva6.onrender.com'
 
 export const analyzeResume = async (resumeFile, jobDescription) => {
     const formData = new FormData()
