@@ -1,54 +1,19 @@
-import spacy
 import re
 from loguru import logger
-
-# Load spaCy model
-try:
-    nlp = spacy.load("en_core_web_sm")
-    logger.info("spaCy model loaded successfully")
-except OSError:
-    logger.error(
-        "spaCy model not found. "
-        "Run: python -m spacy download en_core_web_sm"
-    )
-    nlp = None
-
 
 def preprocess_text(text: str) -> str:
     """
     Clean and normalize text for AI processing.
     Used for both resume and job description.
     """
-    
     if not text:
         return ""
-    
-    # Lowercase
-    text = text.lower()
-    
-    # Remove special characters but keep important ones
-    text = re.sub(r'[^\w\s\+\#\.\,\-]', ' ', text)
-    
-    # Normalize whitespace
-    text = re.sub(r'\s+', ' ', text)
-    
-    if nlp is None:
-        return text.strip()
-    
-    # spaCy processing
-    doc = nlp(text)
-    
-    # Lemmatize and remove stopwords + punctuation
-    tokens = [
-        token.lemma_
-        for token in doc
-        if not token.is_stop
-        and not token.is_punct
-        and len(token.text) > 1
-    ]
-    
-    return " ".join(tokens).strip()
 
+    text = text.lower()
+    text = re.sub(r"[^\w\s+#.,-]", " ", text)
+    text = re.sub(r"\s+", " ", text)
+
+    return text.strip()
 
 def detect_sections(text: str) -> dict:
     """

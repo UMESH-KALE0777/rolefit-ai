@@ -5,7 +5,6 @@ pydantic
 pydantic-settings
 pdfplumber
 pymupdf
-spacy
 sentence-transformers
 torch
 scikit-learn

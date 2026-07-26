@@ -1,21 +1,21 @@
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from loguru import logger
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # ── BGE prefix for query (job description) ──────────
 BGE_QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 
-# Global model instance (loaded once at startup)
+# Global model instance (loaded lazily on first request)
 _model = None
 
 
 def load_model() -> SentenceTransformer:
-    """Load BGE model once at startup."""
+    """Load BGE model lazily on first request."""
     global _model
     if _model is None:
-        logger.info("Loading BAAI/bge-base-en-v1.5 model...")
-        _model = SentenceTransformer("BAAI/bge-base-en-v1.5")
+        logger.info("Loading BAAI/bge-small-en-v1.5 model...")
+        _model = SentenceTransformer("BAAI/bge-small-en-v1.5")
         logger.info("BGE model loaded successfully")
     return _model
 
