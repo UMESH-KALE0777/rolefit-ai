@@ -7,10 +7,11 @@ pdfplumber
 pymupdf
 spacy
 sentence-transformers
+torch
 scikit-learn
 numpy
 nltk
-google-generativeai
+google-genai
 python-dotenv
 slowapi
 loguru
