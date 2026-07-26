@@ -1,53 +1,124 @@
 export default function Hero() {
     return (
-        <section className="pt-32 pb-20 px-4 text-center bg-gray-950">
-            <div className="max-w-4xl mx-auto">
+        <section style={{
+            paddingTop: '140px',
+            paddingBottom: '100px',
+            paddingLeft: '24px',
+            paddingRight: '24px',
+            textAlign: 'center',
+            backgroundColor: '#F7F7F5',
+        }}>
+            <div style={{ maxWidth: '760px', margin: '0 auto' }}>
 
                 {/* Badge */}
-                <div className="inline-flex items-center gap-2 bg-blue-950 border border-blue-800 text-blue-400 text-sm px-4 py-2 rounded-full mb-8">
-                    <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
-                    AI-Powered Resume Screening
+                <div style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    backgroundColor: '#EEF0FF',
+                    border: '1px solid #D4D0FF',
+                    borderRadius: '100px',
+                    padding: '6px 14px',
+                    marginBottom: '32px',
+                }}>
+                    <div style={{
+                        width: '6px',
+                        height: '6px',
+                        backgroundColor: '#635BFF',
+                        borderRadius: '50%',
+                    }} />
+                    <span style={{
+                        fontSize: '13px',
+                        fontWeight: '500',
+                        color: '#635BFF',
+                    }}>
+                        AI-Powered Resume Screening
+                    </span>
                 </div>
 
                 {/* Headline */}
-                <h1 className="text-5xl font-bold text-white mb-6 leading-tight">
-                    Know Your Resume Score
+                <h1 style={{
+                    fontSize: '56px',
+                    fontWeight: '800',
+                    color: '#111111',
+                    letterSpacing: '-2px',
+                    lineHeight: '1.1',
+                    marginBottom: '20px',
+                    fontFamily: 'Inter Tight, Inter, sans-serif',
+                }}>
+                    Know your resume score
                     <br />
-                    <span className="text-blue-500">Before The Recruiter Does</span>
+                    <span style={{ color: '#635BFF' }}>
+                        before the recruiter does
+                    </span>
                 </h1>
 
                 {/* Subheadline */}
-                <p className="text-gray-400 text-xl mb-8 max-w-2xl mx-auto">
+                <p style={{
+                    fontSize: '18px',
+                    color: '#8A8A8A',
+                    lineHeight: '1.6',
+                    marginBottom: '48px',
+                    fontWeight: '400',
+                }}>
                     Upload your resume and paste any job description.
-                    Get your match score, skill gaps, bias report,
-                    and interview questions in under 5 seconds.
+                    Get your match score, skill gaps, and interview questions
+                    in under 5 seconds.
                 </p>
 
-                {/* Trust badges */}
-                <div className="flex items-center justify-center gap-6 mb-12 text-sm text-gray-500">
-                    <div className="flex items-center gap-2">
-                        <span className="text-green-500">🔒</span>
-                        Resume never stored
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-green-500">⚡</span>
-                        Results in 5 seconds
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-green-500">✨</span>
-                        No signup required
-                    </div>
+                {/* Trust row */}
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '32px',
+                    marginBottom: '48px',
+                    flexWrap: 'wrap',
+                }}>
+                    {[
+                        { icon: '🔒', text: 'Resume never stored' },
+                        { icon: '⚡', text: 'Results in 5 seconds' },
+                        { icon: '✦', text: 'No signup required' },
+                    ].map((item) => (
+                        <div key={item.text} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                        }}>
+                            <span style={{ fontSize: '14px' }}>{item.icon}</span>
+                            <span style={{
+                                fontSize: '14px',
+                                color: '#8A8A8A',
+                                fontWeight: '500',
+                            }}>
+                                {item.text}
+                            </span>
+                        </div>
+                    ))}
                 </div>
 
-        {/* CTA */}
-        <a
-          href="#analyze"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-xl text-lg transition-colors inline-block"
-        >
-          Analyze My Resume
-        </a>
+                {/* CTA */}
+                <a
+                    href="#analyze"
+                    style={{
+                        display: 'inline-block',
+                        backgroundColor: '#635BFF',
+                        color: 'white',
+                        fontSize: '15px',
+                        fontWeight: '600',
+                        padding: '14px 28px',
+                        borderRadius: '10px',
+                        textDecoration: 'none',
+                        letterSpacing: '-0.2px',
+                        transition: 'opacity 0.15s',
+                    }}
+                    onMouseEnter={e => e.target.style.opacity = '0.85'}
+                    onMouseLeave={e => e.target.style.opacity = '1'}
+                >
+                    Analyze my resume
+                </a>
 
-        </div>
-    </section >
-  )
+            </div>
+        </section>
+    );
 }

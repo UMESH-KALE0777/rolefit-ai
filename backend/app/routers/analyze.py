@@ -1,17 +1,20 @@
-import time
+import asyncio
 import io
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+import time
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from loguru import logger
 
-from app.ai.parser import extract_text_from_pdf, extract_contact_info
-from app.ai.preprocessor import preprocess_text
-from app.ai.skill_extractor import extract_skills
 from app.ai.bias_detector import detect_bias
 from app.ai.interview_gen import generate_interview_questions
+from app.ai.parser import extract_contact_info, extract_text_from_pdf
+from app.ai.preprocessor import preprocess_text
 from app.ai.scorer import calculate_hybrid_score
+from app.ai.skill_extractor import extract_skills
 from app.models.schemas import AnalyzeResponse
 
 router = APIRouter()
+
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 
 
 @router.post("/analyze", response_model=AnalyzeResponse)
@@ -23,77 +26,88 @@ async def analyze_resume(
 
     logger.info(
         f"Analysis started | "
-        f"file: {resume.filename} | "
-        f"size: {resume.size} bytes"
+        f"size: {resume.size} bytes | "
+        f"content_type: {resume.content_type}"
     )
 
-    # ── Validate file type ───────────────────────────
-    if not resume.filename.endswith(".pdf"):
+    # ── 1. Validate File Metadata ─────────────────────
+    if not resume.filename.lower().endswith(".pdf"):
         raise HTTPException(
             status_code=400,
-            detail="Only PDF files are accepted."
+            detail="Invalid file format. Only PDF files are accepted."
         )
 
-    # ── Validate file size (5MB max) ─────────────────
+    # Read bytes and check size
     pdf_bytes = await resume.read()
-    size_mb = len(pdf_bytes) / (1024 * 1024)
-
-    if size_mb > 5:
+    if len(pdf_bytes) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=400,
-            detail=f"File too large. Maximum size is 5MB."
+            detail="File too large. Maximum size allowed is 5MB."
         )
 
-    # ── Validate job description ─────────────────────
-    if len(job_description.strip()) < 50:
+    # ── 2. Validate Job Description ────────────────────
+    clean_jd_raw = job_description.strip()
+    if len(clean_jd_raw) < 50:
         raise HTTPException(
             status_code=400,
-            detail="Job description is too short. "
-                   "Please provide a complete job description."
+            detail="Job description is too short. Please provide a complete description (minimum 50 characters)."
         )
 
     try:
         # ── Step 1: Parse PDF ────────────────────────
         logger.info("Step 1: Parsing PDF...")
-        raw_resume_text = extract_text_from_pdf(pdf_bytes)
-        contact_info = extract_contact_info(raw_resume_text)
+        raw_resume_text = await asyncio.to_thread(extract_text_from_pdf, pdf_bytes)
+        
+        if not raw_resume_text or len(raw_resume_text.strip()) < 30:
+            raise HTTPException(
+                status_code=400,
+                detail="Could not extract readable text from the PDF. If this is a scanned image, please upload a text-based PDF."
+            )
+
+        contact_info = await asyncio.to_thread(extract_contact_info, raw_resume_text)
 
         # ── Step 2: Preprocess text ──────────────────
         logger.info("Step 2: Preprocessing text...")
-        clean_resume = preprocess_text(raw_resume_text)
-        clean_jd = preprocess_text(job_description)
+        clean_resume = await asyncio.to_thread(preprocess_text, raw_resume_text)
+        clean_jd = await asyncio.to_thread(preprocess_text, clean_jd_raw)
 
         # ── Step 3: Extract skills ───────────────────
         logger.info("Step 3: Extracting skills...")
-        resume_skills = extract_skills(raw_resume_text)
-        jd_skills = extract_skills(job_description)
+        resume_skills_task = asyncio.to_thread(extract_skills, raw_resume_text)
+        jd_skills_task = asyncio.to_thread(extract_skills, clean_jd_raw)
+        
+        # Run skill extraction in parallel to reduce processing time
+        resume_skills, jd_skills = await asyncio.gather(
+            resume_skills_task, jd_skills_task
+        )
 
         # ── Step 4: Calculate score ──────────────────
         logger.info("Step 4: Calculating hybrid score...")
-        results = calculate_hybrid_score(
+        results = await asyncio.to_thread(
+            calculate_hybrid_score,
             clean_resume,
             clean_jd,
             resume_skills,
             jd_skills
         )
 
-        # ── Step 5: Detect bias ──────────────────────
-        logger.info("Step 5: Detecting bias...")
-        bias_report = detect_bias(job_description)
-
-        # ── Step 6: Generate interview questions ─────
-        logger.info("Step 6: Generating interview questions...")
-        interview_questions = generate_interview_questions(
+        # ── Step 5 & 6: Run Bias & Question Generation concurrently ──
+        logger.info("Steps 5 & 6: Running bias check and interview generation...")
+        bias_task = asyncio.to_thread(detect_bias, clean_jd_raw)
+        interview_task = asyncio.to_thread(
+            generate_interview_questions, 
             results["skills"]["missing"]
+        )
+
+        bias_report, interview_questions = await asyncio.gather(
+            bias_task, interview_task
         )
 
         # ── Build response ───────────────────────────
         processing_time = round(time.time() - start_time, 2)
 
         logger.info(
-            f"Analysis complete | "
-            f"score: {results['score']['overall']} | "
-            f"time: {processing_time}s"
+            f"Analysis complete | score: {results['score']['overall']} | time: {processing_time}s"
         )
 
         return AnalyzeResponse(
@@ -107,12 +121,16 @@ async def analyze_resume(
             explainability=results["explainability"]
         )
 
+    except HTTPException:
+        # Re-raise explicit HTTP exceptions (e.g., bad PDFs or unreadable text)
+        raise
+
     except ValueError as e:
-        logger.error(f"Validation error: {e}")
+        logger.error(f"Validation error during processing: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
-    except Exception as e:
-        logger.error(f"Analysis failed: {e}")
+    except Exception:
+        logger.exception("Analysis failed")
         raise HTTPException(
             status_code=500,
             detail="Analysis failed. Please try again."

@@ -8,6 +8,9 @@ import Explainability from '../components/Explainability'
 import Hero from '../components/Hero'
 import { analyzeResume } from '../api/analyze'
 
+// ── Responsive helper ────────────────────────────────
+const isMobile = () => window.innerWidth < 768
+
 export default function Home() {
     const [file, setFile] = useState(null)
     const [jd, setJd] = useState('')
@@ -16,70 +19,156 @@ export default function Home() {
     const [error, setError] = useState(null)
 
     const handleAnalyze = async () => {
-        if (!file) {
-            setError('Please upload your resume PDF.')
-            return
-        }
-        if (jd.trim().length < 50) {
-            setError('Please paste a complete job description.')
-            return
-        }
-
+        if (!file) { setError('Please upload your resume PDF.'); return }
+        if (jd.trim().length < 50) { setError('Please paste a complete job description.'); return }
         setError(null)
         setLoading(true)
         setResult(null)
-
         try {
             const data = await analyzeResume(file, jd)
             setResult(data)
-
-            // Scroll to results
             setTimeout(() => {
-                document.getElementById('results')?.scrollIntoView({
-                    behavior: 'smooth'
-                })
-            }, 100)
-
+                document.getElementById('results')?.scrollIntoView({ behavior: 'smooth' })
+            }, 300)
         } catch (err) {
-            setError(
-                err.response?.data?.detail ||
-                'Analysis failed. Please try again.'
-            )
+            setError(err.response?.data?.detail || 'Analysis failed. Please try again.')
         } finally {
             setLoading(false)
         }
     }
 
-    return (
-        <div className="min-h-screen bg-gray-950">
+    const handleReset = () => {
+        setResult(null)
+        setFile(null)
+        setJd('')
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
 
-            {/* Hero */}
+    return (
+        <div style={{ backgroundColor: '#F7F7F5', minHeight: '100vh' }}>
+
+            {/* ── Global styles ─────────────────────────── */}
+            <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to   { transform: rotate(360deg); }
+        }
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        * { box-sizing: border-box; }
+
+        /* Responsive breakpoints */
+        @media (max-width: 768px) {
+          .hero-title    { font-size: 36px !important; letter-spacing: -1px !important; }
+          .hero-sub      { font-size: 15px !important; }
+          .trust-row     { gap: 16px !important; }
+          .form-card     { padding: 20px !important; }
+          .results-card  { padding: 20px !important; }
+          .score-top     { flex-direction: column !important; align-items: center !important; text-align: center !important; }
+          .score-breakdown { justify-content: center !important; }
+          .analyze-again { flex-direction: column !important; align-items: flex-start !important; }
+          .candidate-row { flex-direction: column !important; }
+        }
+
+        @media (max-width: 480px) {
+          .hero-title { font-size: 28px !important; }
+          .section-heading { font-size: 24px !important; }
+        }
+
+        textarea:focus { outline: none; }
+        button:hover { opacity: 0.88; }
+      `}</style>
+
+            {/* ── 1. HERO ───────────────────────────────── */}
             <Hero />
 
-            {/* Analyzer */}
-            <section id="analyze" className="py-20 px-4 bg-gray-900">
-                <div className="max-w-4xl mx-auto">
+            {/* ── Divider ───────────────────────────────── */}
+            <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px' }}>
+                <div style={{ height: '1px', backgroundColor: '#E8E8E8' }} />
+            </div>
 
-                    <h2 className="text-3xl font-bold text-white text-center mb-2">
-                        Analyze Your Resume
+            {/* ── 2. ANALYZER SECTION ───────────────────── */}
+            <section
+                id="analyze"
+                style={{ padding: '80px 24px', backgroundColor: '#F7F7F5' }}
+            >
+                <div style={{ maxWidth: '640px', margin: '0 auto' }}>
+
+                    {/* Section label */}
+                    <p style={{
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        color: '#635BFF',
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px',
+                        textAlign: 'center',
+                        marginBottom: '10px',
+                    }}>
+                        Resume Analyzer
+                    </p>
+
+                    {/* Heading */}
+                    <h2
+                        className="section-heading"
+                        style={{
+                            fontSize: '32px',
+                            fontWeight: '700',
+                            color: '#111111',
+                            letterSpacing: '-1px',
+                            textAlign: 'center',
+                            marginBottom: '8px',
+                        }}
+                    >
+                        Analyze your resume
                     </h2>
-                    <p className="text-gray-400 text-center mb-10">
+
+                    {/* Subtext */}
+                    <p style={{
+                        fontSize: '15px',
+                        color: '#8A8A8A',
+                        textAlign: 'center',
+                        marginBottom: '36px',
+                        lineHeight: '1.5',
+                    }}>
                         No signup required. Your resume is never stored.
                     </p>
 
-                    <div className="bg-gray-950 rounded-2xl p-8 border border-gray-800">
+                    {/* ── Form card ─────────────────────────── */}
+                    <div
+                        className="form-card"
+                        style={{
+                            backgroundColor: 'white',
+                            borderRadius: '20px',
+                            border: '1px solid #E8E8E8',
+                            padding: '32px',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                            animation: 'fadeUp 0.4s ease',
+                        }}
+                    >
 
-                        {/* Resume Upload */}
-                        <div className="mb-6">
-                            <ResumeUploader
-                                onFileSelect={setFile}
-                                file={file}
-                            />
+                        {/* Resume upload */}
+                        <div style={{ marginBottom: '24px' }}>
+                            <ResumeUploader onFileSelect={setFile} file={file} />
                         </div>
 
-                        {/* Job Description */}
-                        <div className="mb-6">
-                            <label className="block text-white font-semibold mb-3">
+                        {/* Divider */}
+                        <div style={{
+                            height: '1px',
+                            backgroundColor: '#F0F0F0',
+                            margin: '0 0 24px',
+                        }} />
+
+                        {/* Job description */}
+                        <div style={{ marginBottom: '24px' }}>
+                            <label style={{
+                                display: 'block',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                color: '#111111',
+                                marginBottom: '8px',
+                            }}>
                                 Job Description
                             </label>
                             <textarea
@@ -87,39 +176,85 @@ export default function Home() {
                                 onChange={(e) => setJd(e.target.value)}
                                 placeholder="Paste the full job description here..."
                                 rows={8}
-                                className="w-full bg-gray-900 border border-gray-700 rounded-xl p-4 text-gray-300 placeholder-gray-600 focus:outline-none focus:border-blue-500 resize-none"
+                                style={{
+                                    width: '100%',
+                                    backgroundColor: '#FAFAFA',
+                                    border: '1.5px solid #E8E8E8',
+                                    borderRadius: '12px',
+                                    padding: '14px 16px',
+                                    fontSize: '14px',
+                                    color: '#111111',
+                                    resize: 'vertical',
+                                    fontFamily: 'Inter, sans-serif',
+                                    lineHeight: '1.6',
+                                    transition: 'border-color 0.15s',
+                                }}
+                                onFocus={e => e.target.style.borderColor = '#635BFF'}
+                                onBlur={e => e.target.style.borderColor = '#E8E8E8'}
                             />
                         </div>
 
-                        {/* Error */}
+                        {/* Error message */}
                         {error && (
-                            <div className="bg-red-900 border border-red-700 text-red-300 rounded-xl p-4 mb-6">
-                                {error}
+                            <div style={{
+                                backgroundColor: '#FFF5F5',
+                                border: '1px solid #FED7D7',
+                                borderRadius: '10px',
+                                padding: '12px 16px',
+                                marginBottom: '16px',
+                                fontSize: '14px',
+                                color: '#E53E3E',
+                                animation: 'fadeUp 0.2s ease',
+                            }}>
+                                ⚠ {error}
                             </div>
                         )}
 
                         {/* Privacy note */}
-                        <div className="flex items-center gap-2 text-gray-500 text-sm mb-6">
-                            <span>🔒</span>
-                            <span>
-                                Your resume is analyzed in memory only.
-                                Never stored. Never shared.
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            marginBottom: '20px',
+                        }}>
+                            <span style={{ fontSize: '13px' }}>🔒</span>
+                            <span style={{ fontSize: '13px', color: '#8A8A8A' }}>
+                                Analyzed in memory only — never stored or shared
                             </span>
                         </div>
 
-                        {/* Submit */}
+                        {/* Submit button */}
                         <button
                             onClick={handleAnalyze}
                             disabled={loading}
-                            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-900 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl text-lg transition-colors flex items-center justify-center gap-3"
+                            style={{
+                                width: '100%',
+                                backgroundColor: loading ? '#A8A4FF' : '#635BFF',
+                                color: 'white',
+                                fontSize: '15px',
+                                fontWeight: '600',
+                                padding: '14px',
+                                borderRadius: '10px',
+                                border: 'none',
+                                cursor: loading ? 'not-allowed' : 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px',
+                                letterSpacing: '-0.2px',
+                                transition: 'background-color 0.15s',
+                            }}
                         >
                             {loading ? (
                                 <>
-                                    <Loader2 className="animate-spin" size={22} />
+                                    <Loader2
+                                        size={18}
+                                        style={{ animation: 'spin 1s linear infinite' }}
+                                    />
                                     Analyzing your resume...
                                 </>
                             ) : (
-                                'Analyze Now →'
+                                'Analyze Now'
                             )}
                         </button>
 
@@ -127,62 +262,136 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Results */}
+            {/* ── 3. RESULTS SECTION ────────────────────── */}
             {result && (
-                <section id="results" className="py-20 px-4 bg-gray-950">
-                    <div className="max-w-4xl mx-auto">
+                <section
+                    id="results"
+                    style={{
+                        padding: '0 24px 80px',
+                        backgroundColor: '#F7F7F5',
+                        animation: 'fadeUp 0.5s ease',
+                    }}
+                >
+                    <div style={{ maxWidth: '780px', margin: '0 auto' }}>
 
-                        <h2 className="text-3xl font-bold text-white text-center mb-2">
-                            Your Analysis Results
-                        </h2>
-                        <p className="text-gray-400 text-center mb-10">
-                            Completed in {result.processing_time}
-                        </p>
+                        {/* Results header */}
+                        <div style={{
+                            textAlign: 'center',
+                            marginBottom: '40px',
+                        }}>
+                            <p style={{
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                color: '#635BFF',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1px',
+                                marginBottom: '8px',
+                            }}>
+                                Analysis Complete
+                            </p>
+                            <h2
+                                className="section-heading"
+                                style={{
+                                    fontSize: '32px',
+                                    fontWeight: '700',
+                                    color: '#111111',
+                                    letterSpacing: '-1px',
+                                    marginBottom: '4px',
+                                }}
+                            >
+                                Your results
+                            </h2>
+                            <p style={{ fontSize: '14px', color: '#8A8A8A' }}>
+                                Completed in {result.processing_time}
+                            </p>
+                        </div>
 
-                        <div className="space-y-6">
-
-                            {/* Score + Skills */}
-                            <ScoreCard
-                                score={result.score}
-                                skills={result.skills}
-                            />
-
-                            {/* Explainability */}
+                        {/* Result cards */}
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '16px',
+                        }}>
+                            <ScoreCard score={result.score} skills={result.skills} />
                             <Explainability
                                 explainability={result.explainability}
                                 candidate={result.candidate}
                             />
-
-                            {/* Bias Report */}
                             <BiasReport biasReport={result.bias_report} />
-
-                            {/* Interview Questions */}
-                            <InterviewQuestions
-                                questions={result.interview_questions}
-                            />
-
-                            {/* Analyze Again */}
-                            <div className="bg-blue-950 border border-blue-800 rounded-2xl p-6 text-center">
-                                <p className="text-white font-semibold mb-2">
-                                    Want to try another resume?
-                                </p>
-                                <button
-                                    onClick={() => {
-                                        setResult(null)
-                                        setFile(null)
-                                        setJd('')
-                                        window.scrollTo({ top: 0, behavior: 'smooth' })
-                                    }}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl transition-colors"
-                                >
-                                    Analyze Another Resume →
-                                </button>
-                            </div>
-
+                            <InterviewQuestions questions={result.interview_questions} />
                         </div>
+
+                        {/* ── Analyze again ─────────────────── */}
+                        <div
+                            className="analyze-again"
+                            style={{
+                                marginTop: '24px',
+                                padding: '24px 28px',
+                                backgroundColor: 'white',
+                                borderRadius: '16px',
+                                border: '1px solid #E8E8E8',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                gap: '16px',
+                            }}
+                        >
+                            <div>
+                                <p style={{
+                                    fontSize: '15px',
+                                    fontWeight: '600',
+                                    color: '#111111',
+                                    marginBottom: '2px',
+                                }}>
+                                    Try another resume
+                                </p>
+                                <p style={{ fontSize: '13px', color: '#8A8A8A' }}>
+                                    Compare different resumes against the same job description
+                                </p>
+                            </div>
+                            <button
+                                onClick={handleReset}
+                                style={{
+                                    backgroundColor: '#635BFF',
+                                    color: 'white',
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    padding: '10px 20px',
+                                    borderRadius: '8px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    whiteSpace: 'nowrap',
+                                    flexShrink: 0,
+                                }}
+                            >
+                                Analyze Another
+                            </button>
+                        </div>
+
                     </div>
                 </section>
             )}
+
+            {/* ── 4. FOOTER ─────────────────────────────── */}
+            <footer style={{
+                borderTop: '1px solid #E8E8E8',
+                backgroundColor: 'white',
+                padding: '24px',
+                textAlign: 'center',
+            }}>
+                <p style={{ fontSize: '13px', color: '#8A8A8A' }}>
+                    RoleFit AI — Built with FastAPI, React, and BAAI/bge-base-en-v1.5
+                    {' · '}
+                    <a
+                        href="https://github.com/UMESH-KALE0777/rolefit-ai"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: '#635BFF', textDecoration: 'none', fontWeight: '500' }}
+                    >
+                        GitHub
+                    </a>
+                </p>
+            </footer>
 
         </div>
     )
