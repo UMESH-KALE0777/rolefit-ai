@@ -1,4 +1,4 @@
-import google.generativeai as genai
+from google import genai
 from loguru import logger
 from app.core.config import get_settings
 
