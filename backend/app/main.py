@@ -59,7 +59,7 @@ async def health():
     return {
         "status": "ok",
         "version": "1.0.0",
-        "model": "BAAI/bge-small-en-v1.5",
+        "model": "all-MiniLM-L6-v2",
     }
 
 

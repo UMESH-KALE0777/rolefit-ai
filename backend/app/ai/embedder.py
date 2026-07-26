@@ -3,44 +3,31 @@ from loguru import logger
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-# ── BGE prefix for query (job description) ──────────
-BGE_QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
-
 # Global model instance (loaded lazily on first request)
 _model = None
 
 
 def load_model() -> SentenceTransformer:
-    """Load BGE model lazily on first request."""
+    """Load MiniLM model lazily on first request."""
     global _model
     if _model is None:
-        logger.info("Loading BAAI/bge-small-en-v1.5 model...")
-        _model = SentenceTransformer("BAAI/bge-small-en-v1.5")
-        logger.info("BGE model loaded successfully")
+        logger.info("Loading all-MiniLM-L6-v2 model...")
+        _model = SentenceTransformer("all-MiniLM-L6-v2")
+        logger.info("MiniLM model loaded successfully")
     return _model
 
 
 def embed_resume(text: str) -> np.ndarray:
-    """
-    Embed resume text.
-    No prefix needed for documents.
-    """
+    """Embed resume text."""
     model = load_model()
     embedding = model.encode(text, normalize_embeddings=True)
     return embedding
 
 
 def embed_job_description(text: str) -> np.ndarray:
-    """
-    Embed job description text.
-    BGE requires query prefix for better accuracy.
-    """
+    """Embed job description text."""
     model = load_model()
-    prefixed_text = BGE_QUERY_PREFIX + text
-    embedding = model.encode(
-        prefixed_text,
-        normalize_embeddings=True
-    )
+    embedding = model.encode(text, normalize_embeddings=True)
     return embedding
 
 
