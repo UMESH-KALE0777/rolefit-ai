@@ -1,69 +1,50 @@
 import numpy as np
-import requests
-import os
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from loguru import logger
-from dotenv import load_dotenv
-
-load_dotenv()
-
-HF_TOKEN = os.getenv("HF_TOKEN")
-API_URL = "https://api-inference.huggingface.co/models/BAAI/bge-base-en-v1.5"
-BGE_QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
-
-headers = {"Authorization": f"Bearer {HF_TOKEN}"}
-
-
-def query_embedding(text: str) -> np.ndarray:
-    """Call HF Inference API to get embeddings."""
-    try:
-        response = requests.post(
-            API_URL,
-            headers=headers,
-            json={"inputs": text},
-            timeout=30
-        )
-        response.raise_for_status()
-        embedding = np.array(response.json())
-        
-        # Normalize
-        norm = np.linalg.norm(embedding)
-        if norm > 0:
-            embedding = embedding / norm
-            
-        return embedding
-    except Exception as e:
-        logger.error(f"HF API error: {e}")
-        raise
 
 
 def load_model():
-    """No local model needed — using HF API."""
-    logger.info("Using HF Inference API for embeddings")
+    """No model needed — using TF-IDF."""
+    logger.info("Using TF-IDF for semantic similarity")
     return True
 
 
 def embed_resume(text: str) -> np.ndarray:
-    """Embed resume text via HF API."""
-    return query_embedding(text)
+    """Return text as-is for TF-IDF processing."""
+    return text
 
 
 def embed_job_description(text: str) -> np.ndarray:
-    """Embed JD text with BGE prefix via HF API."""
-    prefixed = BGE_QUERY_PREFIX + text
-    return query_embedding(prefixed)
+    """Return text as-is for TF-IDF processing."""
+    return text
 
 
 def calculate_semantic_similarity(
-    resume_embedding: np.ndarray,
-    jd_embedding: np.ndarray
+    resume_text: str,
+    jd_text: str
 ) -> float:
-    """Calculate cosine similarity."""
-    from sklearn.metrics.pairwise import cosine_similarity
-    
-    similarity = cosine_similarity(
-        resume_embedding.reshape(1, -1),
-        jd_embedding.reshape(1, -1)
-    )[0][0]
-    
-    score = float(similarity) * 100
-    return max(0.0, min(100.0, score))
+    """
+    Calculate similarity using TF-IDF + cosine similarity.
+    Works completely locally — no external API needed.
+    """
+    try:
+        vectorizer = TfidfVectorizer(
+            stop_words='english',
+            ngram_range=(1, 2),
+            max_features=5000
+        )
+        
+        tfidf_matrix = vectorizer.fit_transform([resume_text, jd_text])
+        similarity = cosine_similarity(
+            tfidf_matrix[0:1],
+            tfidf_matrix[1:2]
+        )[0][0]
+        
+        score = float(similarity) * 100
+        logger.info(f"TF-IDF similarity score: {score:.2f}")
+        return max(0.0, min(100.0, score))
+        
+    except Exception as e:
+        logger.error(f"TF-IDF error: {e}")
+        return 50.0

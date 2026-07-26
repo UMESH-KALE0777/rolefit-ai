@@ -1,11 +1,6 @@
 from loguru import logger
-from app.ai.embedder import (
-    embed_resume,
-    embed_job_description,
-    calculate_semantic_similarity
-)
+from app.ai.embedder import calculate_semantic_similarity
 from app.ai.skill_extractor import (
-    extract_skills,
     compare_skills,
     calculate_skill_coverage
 )
@@ -103,11 +98,9 @@ def calculate_hybrid_score(
     logger.info("Calculating semantic similarity...")
 
     # ── Semantic Score (60%) ─────────────────────────
-    resume_embedding = embed_resume(resume_text)
-    jd_embedding = embed_job_description(jd_text)
     semantic_score = calculate_semantic_similarity(
-        resume_embedding,
-        jd_embedding
+        resume_text,
+        jd_text
     )
 
     logger.info(f"Semantic score: {semantic_score:.2f}")
@@ -126,7 +119,6 @@ def calculate_hybrid_score(
     final_score = round(final_score, 2)
 
     label = get_score_label(final_score)
-
     logger.info(f"Final hybrid score: {final_score} — {label}")
 
     # ── Explainability ───────────────────────────────
