@@ -17,8 +17,8 @@ export default function Navbar() {
     <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4 sm:px-6 lg:px-8">
       <header
         className={`w-full max-w-5xl rounded-2xl transition-all duration-300 ${scrolled
-            ? "bg-white/80 backdrop-blur-xl border border-gray-200/60 shadow-lg shadow-black/[0.03]"
-            : "bg-transparent border border-transparent"
+          ? "bg-white/80 backdrop-blur-xl border border-gray-200/60 shadow-lg shadow-black/[0.03]"
+          : "bg-transparent border border-transparent"
           }`}
       >
         <div className="flex h-16 items-center justify-between px-4 sm:px-6">
@@ -26,21 +26,17 @@ export default function Navbar() {
           {/* Logo */}
           <a
             href="/"
-            className="group flex items-center gap-3 transition-transform duration-300 hover:scale-[1.02]"
+            className="flex items-center gap-3 transition-transform duration-300 hover:scale-[1.02]"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#635BFF] to-[#4B42E4] text-base font-bold text-white shadow-[0_4px_14px_0_rgb(99,91,255,0.39)]">
-              RF
-            </div>
+            <img
+              src="/logo.png"
+              alt="RoleFit AI"
+              className="w-10 h-10 object-contain"
+            />
 
-            <div className="leading-none">
-              <h1 className="text-xl font-bold tracking-tight text-gray-900">
-                RoleFit
-                <span className="ml-1 text-[#635BFF]">AI</span>
-              </h1>
-              <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-gray-400 group-hover:text-gray-500 transition-colors">
-                Resume Intelligence
-              </p>
-            </div>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900">
+              RoleFit-AI
+            </h1>
           </a>
 
           {/* Desktop Navigation */}
