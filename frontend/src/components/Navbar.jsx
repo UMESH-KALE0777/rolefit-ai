@@ -1,83 +1,81 @@
-import { Menu, X, ChevronRight } from "lucide-react";
-import { useState, useEffect } from "react";
-
 export default function Navbar() {
-  const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  // Add a subtle shadow, border, and blur when scrolling down
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
-    // Added top-4 and side padding so it doesn't touch the edges of the screen
-    <div className="fixed inset-x-0 top-4 z-50 flex justify-center px-4 sm:px-6 lg:px-8">
-      <header
-        className={`w-full max-w-5xl rounded-2xl transition-all duration-300 ${scrolled
-          ? "bg-white/80 backdrop-blur-xl border border-gray-200/60 shadow-lg shadow-black/[0.03]"
-          : "bg-transparent border border-transparent"
-          }`}
-      >
-        <div className="flex h-16 items-center justify-between px-4 sm:px-6">
+    <nav style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 50,
+      backgroundColor: 'rgba(255,255,255,0.7)',
+      backdropFilter: 'blur(20px)',
+      WebkitBackdropFilter: 'blur(20px)',
+      borderBottom: '1px solid rgba(99,91,255,0.08)',
+    }}>
+      <div style={{
+        maxWidth: '1100px',
+        margin: '0 auto',
+        padding: '0 32px',
+        height: '64px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}>
 
-          {/* Logo */}
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img
+            src="/logo.png"
+            alt="RoleFit AI"
+            style={{
+              height: '36px',
+              width: 'auto',
+              objectFit: 'contain',
+            }}
+          />
+          <span style={{
+            fontSize: '17px',
+            fontWeight: '700',
+            color: '#0A0A0A',
+            letterSpacing: '-0.5px',
+          }}>
+            RoleFit<span style={{ color: '#635BFF' }}>AI</span>
+          </span>
+        </div>
+
+        {/* Right */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <a
-            href="/"
-            className="flex items-center gap-3 transition-transform duration-300 hover:scale-[1.02]"
+            href="https://github.com/UMESH-KALE0777/rolefit-ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontSize: '14px',
+              color: '#6B7280',
+              textDecoration: 'none',
+              fontWeight: '500',
+            }}
           >
-            <img
-              src="/logo.png"
-              alt="RoleFit AI"
-              className="w-10 h-10 object-contain"
-            />
-
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-              RoleFit-AI
-            </h1>
+            GitHub
           </a>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex md:items-center">
-            <a
-              href="#analyze"
-              className="group relative inline-flex h-10 items-center justify-center overflow-hidden rounded-xl bg-[#635BFF] px-6 text-sm font-medium text-white shadow-[0_4px_14px_0_rgb(99,91,255,0.39)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#5548F6] hover:shadow-[0_6px_20px_rgba(99,91,255,0.23)]"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Analyse Resume
-                <ChevronRight size={16} className="transition-transform group-hover:translate-x-1" />
-              </span>
-            </a>
-          </nav>
-
-          {/* Mobile Toggle */}
-          <button
-            onClick={() => setOpen(!open)}
-            className="relative z-50 rounded-full p-2 text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 md:hidden"
-            aria-label="Toggle Menu"
+          <a
+            href="#analyze"
+            style={{
+              fontSize: '14px',
+              fontWeight: '600',
+              color: 'white',
+              background: 'linear-gradient(135deg, #635BFF 0%, #7C3AED 100%)',
+              padding: '9px 20px',
+              borderRadius: '10px',
+              textDecoration: 'none',
+              boxShadow: '0 4px 12px rgba(99,91,255,0.3)',
+              letterSpacing: '-0.2px',
+            }}
           >
-            {open ? <X size={24} /> : <Menu size={24} />}
-          </button>
+            Try Free →
+          </a>
         </div>
-
-        {/* Mobile Menu Dropdown */}
-        <div
-          className={`absolute inset-x-0 top-full mt-2 origin-top overflow-hidden rounded-2xl bg-white/95 backdrop-blur-xl transition-all duration-300 ease-in-out md:hidden ${open ? "scale-y-100 border border-gray-200/60 opacity-100 shadow-xl" : "scale-y-0 opacity-0"
-            }`}
-        >
-          <div className="p-4">
-            <a
-              href="#analyze"
-              onClick={() => setOpen(false)}
-              className="flex h-12 w-full items-center justify-center rounded-xl bg-[#635BFF] text-sm font-semibold text-white shadow-md transition-all hover:bg-[#5548F6] active:scale-[0.98]"
-            >
-              Analyse Resume
-            </a>
-          </div>
-        </div>
-      </header>
-    </div>
-  );
+      </div>
+    </nav>
+  )
 }

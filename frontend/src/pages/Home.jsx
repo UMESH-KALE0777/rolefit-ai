@@ -92,7 +92,11 @@ export default function Home() {
             {/* ── 2. ANALYZER SECTION ───────────────────── */}
             <section
                 id="analyze"
-                style={{ padding: '80px 24px', backgroundColor: '#F7F7F5' }}
+                style={{
+                    padding: '80px 24px',
+                    background: 'linear-gradient(180deg, #ffffff 0%, #F7F7F5 100%)',
+                    position: 'relative',
+                }}
             >
                 <div style={{ maxWidth: '640px', margin: '0 auto' }}>
 
@@ -268,7 +272,7 @@ export default function Home() {
                     id="results"
                     style={{
                         padding: '0 24px 80px',
-                        backgroundColor: '#F7F7F5',
+                        background: '#F7F7F5',
                         animation: 'fadeUp 0.5s ease',
                     }}
                 >
