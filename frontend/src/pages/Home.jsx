@@ -275,7 +275,7 @@ export default function Home() {
                     id="results"
                     style={{
                         padding: '0 24px 80px',
-                        background: '#F7F7F5',
+                        background: '#FFFFFF',
                         animation: 'fadeUp 0.5s ease',
                     }}
                 >

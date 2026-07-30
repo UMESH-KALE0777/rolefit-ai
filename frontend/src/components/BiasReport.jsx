@@ -112,14 +112,27 @@ export default function BiasReport({ biasReport }) {
                         borderRadius: '16px',
                         border: '1px dashed #E5E7EB',
                     }}>
-                        <div style={{ fontSize: '40px', marginBottom: '16px' }}>🎉</div>
                         <div style={{
-                            fontSize: '18px',
+                            width: '48px',
+                            height: '48px',
+                            backgroundColor: '#F0FDF6',
+                            border: '1px solid #C3F0DA',
+                            borderRadius: '14px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '22px',
+                            marginBottom: '16px',
+                        }}>
+                            ✓
+                        </div>
+                        <div style={{
+                            fontSize: '16px',
                             fontWeight: '600',
                             color: '#111111',
                             marginBottom: '8px',
                         }}>
-                            Great!
+                            No biased language detected
                         </div>
                         <div style={{
                             fontSize: '14.5px',

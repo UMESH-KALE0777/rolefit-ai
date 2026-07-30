@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-function CircularScore({ score, size = 160, strokeWidth = 8 }) {
+function CircularScore({ score, size = 200, strokeWidth = 10 }) {
     const [animatedScore, setAnimatedScore] = useState(0)
     const radius = (size - strokeWidth) / 2
     const circumference = 2 * Math.PI * radius
@@ -68,7 +68,7 @@ function CircularScore({ score, size = 160, strokeWidth = 8 }) {
                 justifyContent: 'center',
             }}>
                 <span style={{
-                    fontSize: '32px',
+                    fontSize: '40px',
                     fontWeight: '700',
                     color: getColor(animatedScore),
                     fontFamily: 'Inter, sans-serif',
