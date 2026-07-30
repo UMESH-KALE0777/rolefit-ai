@@ -145,9 +145,9 @@ export default function Home() {
                         style={{
                             backgroundColor: 'white',
                             borderRadius: '20px',
-                            border: '1px solid #E8E8E8',
+                            border: '1px solid rgba(99,91,255,0.12)',
                             padding: '32px',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                            boxShadow: '0 8px 40px rgba(99,91,255,0.08), 0 2px 8px rgba(0,0,0,0.04)',
                             animation: 'fadeUp 0.4s ease',
                         }}
                     >
@@ -183,7 +183,7 @@ export default function Home() {
                                 style={{
                                     width: '100%',
                                     backgroundColor: '#FAFAFA',
-                                    border: '1.5px solid #E8E8E8',
+                                    border: '1.5px solid rgba(99,91,255,0.15)',
                                     borderRadius: '12px',
                                     padding: '14px 16px',
                                     fontSize: '14px',
@@ -233,7 +233,10 @@ export default function Home() {
                             disabled={loading}
                             style={{
                                 width: '100%',
-                                backgroundColor: loading ? '#A8A4FF' : '#635BFF',
+                                background: loading
+                                    ? '#A8A4FF'
+                                    : 'linear-gradient(135deg, #635BFF 0%, #7C3AED 100%)',
+                                boxShadow: loading ? 'none' : '0 8px 24px rgba(99,91,255,0.35)',
                                 color: 'white',
                                 fontSize: '15px',
                                 fontWeight: '600',
@@ -246,7 +249,7 @@ export default function Home() {
                                 justifyContent: 'center',
                                 gap: '8px',
                                 letterSpacing: '-0.2px',
-                                transition: 'background-color 0.15s',
+                                transition: 'opacity 0.15s',
                             }}
                         >
                             {loading ? (

@@ -57,7 +57,7 @@ export default function ResumeUploader({ onFileSelect, file }) {
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
                 onDragLeave={() => setIsDragging(false)}
                 style={{
-                    border: `1.5px dashed ${isDragging ? '#635BFF' : file ? '#00D46A' : '#E8E8E8'}`,
+                    border: `1.5px dashed ${isDragging ? '#635BFF' : file ? '#00D46A' : 'rgba(99,91,255,0.2)'}`,
                     borderRadius: '12px',
                     padding: '56px 32px',
                     textAlign: 'center',
