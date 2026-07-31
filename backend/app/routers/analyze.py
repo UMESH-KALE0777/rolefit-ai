@@ -8,7 +8,7 @@ from app.ai.bias_detector import detect_bias
 from app.ai.interview_gen import generate_interview_questions
 from app.ai.parser import extract_contact_info, extract_text_from_pdf
 from app.ai.preprocessor import preprocess_text
-from app.ai.scorer import calculate_hybrid_score
+from app.ai.scorer import calculate_hybrid_score, analyze_projects
 from app.ai.skill_extractor import extract_skills
 from app.models.schemas import AnalyzeResponse
 
@@ -91,16 +91,21 @@ async def analyze_resume(
             jd_skills
         )
 
-        # ── Step 5 & 6: Run Bias & Question Generation concurrently ──
-        logger.info("Steps 5 & 6: Running bias check and interview generation...")
+        # ── Steps 5, 6 & 7: Run Bias, Questions & Project Analysis concurrently ──
+        logger.info("Steps 5-7: Running bias check, interview generation, and project analysis...")
         bias_task = asyncio.to_thread(detect_bias, clean_jd_raw)
         interview_task = asyncio.to_thread(
             generate_interview_questions, 
             results["skills"]["missing"]
         )
+        project_task = asyncio.to_thread(
+            analyze_projects,
+            raw_resume_text,
+            clean_jd_raw
+        )
 
-        bias_report, interview_questions = await asyncio.gather(
-            bias_task, interview_task
+        bias_report, interview_questions, project_analysis = await asyncio.gather(
+            bias_task, interview_task, project_task
         )
 
         # ── Build response ───────────────────────────
@@ -118,7 +123,8 @@ async def analyze_resume(
             skills=results["skills"],
             bias_report=bias_report,
             interview_questions=interview_questions,
-            explainability=results["explainability"]
+            explainability=results["explainability"],
+            project_analysis=project_analysis
         )
 
     except HTTPException:

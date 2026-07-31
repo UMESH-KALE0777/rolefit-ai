@@ -4,6 +4,7 @@ from app.ai.skill_extractor import (
     compare_skills,
     calculate_skill_coverage
 )
+from app.ai.project_extractor import extract_projects, score_projects
 
 
 def get_score_label(score: float) -> str:
@@ -139,3 +140,38 @@ def calculate_hybrid_score(
         "skills": skill_comparison,
         "explainability": explainability
     }
+
+
+def analyze_projects(
+    resume_text: str,
+    jd_text: str
+) -> list:
+    """Extract and score projects from resume against JD."""
+    logger.info("Analyzing projects...")
+
+    # Extract projects
+    projects = extract_projects(resume_text)
+
+    if not projects:
+        logger.warning("No projects found in resume")
+        return []
+
+    # Score each project using TF-IDF similarity
+    def score_func(project_text, jd):
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.metrics.pairwise import cosine_similarity
+
+        vectorizer = TfidfVectorizer(
+            stop_words='english',
+            ngram_range=(1, 2)
+        )
+        tfidf = vectorizer.fit_transform([project_text, jd])
+        similarity = cosine_similarity(
+            tfidf[0:1], tfidf[1:2]
+        )[0][0]
+        return float(similarity) * 100
+
+    scored = score_projects(projects, jd_text, score_func)
+    logger.info(f"Scored {len(scored)} projects")
+
+    return scored

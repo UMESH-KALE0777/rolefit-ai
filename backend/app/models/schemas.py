@@ -42,6 +42,13 @@ class Explainability(BaseModel):
     why_this_score: str
     improvement_suggestions: List[str]
 
+class ProjectResult(BaseModel):
+    title: str
+    description: str
+    relevance_score: float
+    relevance_label: str
+    color: str
+
 class AnalyzeResponse(BaseModel):
     status: str
     processing_time: str
@@ -51,3 +58,4 @@ class AnalyzeResponse(BaseModel):
     bias_report: BiasReport
     interview_questions: List[InterviewQuestion]
     explainability: Explainability
+    project_analysis: List[ProjectResult] = []

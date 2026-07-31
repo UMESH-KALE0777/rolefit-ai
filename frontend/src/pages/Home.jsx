@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import ResumeUploader from '../components/ResumeUploader'
 import ScoreCard from '../components/ScoreCard'
+import ProjectAnalysis from '../components/ProjectAnalysis'
 import BiasReport from '../components/BiasReport'
 import InterviewQuestions from '../components/InterviewQuestions'
 import Explainability from '../components/Explainability'
@@ -320,6 +321,7 @@ export default function Home() {
                             gap: '16px',
                         }}>
                             <ScoreCard score={result.score} skills={result.skills} />
+                            <ProjectAnalysis projects={result.project_analysis} />
                             <Explainability
                                 explainability={result.explainability}
                                 candidate={result.candidate}
