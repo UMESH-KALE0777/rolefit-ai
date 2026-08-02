@@ -44,7 +44,7 @@ export default function Navbar() {
 
         {/* Right */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <a
+          {/* <a
             href="https://github.com/UMESH-KALE0777/rolefit-ai"
             target="_blank"
             rel="noopener noreferrer"
@@ -56,7 +56,7 @@ export default function Navbar() {
             }}
           >
             GitHub
-          </a>
+          </a> */}
 
           <a
             href="#analyze"

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://rolefit-ai-five.vercel.app/sitemap.xml
