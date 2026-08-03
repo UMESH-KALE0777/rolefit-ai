@@ -1,7 +1,8 @@
 <div align="center">
 
-<!-- Project Logo -->
-<img src="./screenshots/logo.png" alt="RoleFit AI Logo" width="120"/>
+<p align="center">
+  <img src="frontend/public/logo.png" alt="RoleFit AI Logo" width="120">
+</p>
 
 # RoleFit AI
 
@@ -302,8 +303,8 @@ Distributed under the **MIT License**. See `LICENSE` for more information.
 **Umesh Kale**
 
 - GitHub: [@UMESH-KALE0777](https://github.com/UMESH-KALE0777)
-- LinkedIn: _add your LinkedIn URL_
-- Email: _add your email_
+- LinkedIn: [umesh-kale9192](https://www.linkedin.com/in/umesh-kale9192/)
+- Email: [umesh.kale09192@gmail.com](mailto:umesh.kale09192@gmail.com)
 
 ---
 
@@ -315,9 +316,9 @@ I'm passionate about building AI-powered products that solve real-world problems
 
 If you like this project, connect with me:
 
-- 🌐 LinkedIn
-- 💻 GitHub
-- 📧 Email
+- 🌐 [LinkedIn](https://www.linkedin.com/in/umesh-kale9192/)
+- 💻 [GitHub](https://github.com/UMESH-KALE0777)
+- 📧 [umesh.kale09192@gmail.com](mailto:umesh.kale09192@gmail.com)
 
 ---
 
