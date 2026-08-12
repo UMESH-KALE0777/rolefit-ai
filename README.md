@@ -387,7 +387,7 @@ No. RoleFit AI analyzes your resume in memory and never saves it to a database.
 **Do I need to create an account?**
 No signup is required to use RoleFit AI.
 
-**What file formats are supported?**
+**What file formats are supported?****
 Currently, PDF resumes are supported via a dual-parser pipeline (pdfplumber + PyMuPDF).
 
 **How is the ATS score calculated?**
