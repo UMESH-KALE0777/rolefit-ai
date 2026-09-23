@@ -93,8 +93,7 @@ RoleFit AI was built to make resume screening transparent by showing exactly wha
 ## 🚀 Demo
 
 - **Live Website:** [rolefit-ai-five.vercel.app](https://rolefit-ai-five.vercel.app)
-- **Demo Video:** _optional — add a Loom/YouTube link here_
-- **Demo GIF:** _add once available — see screenshots above in the meantime_
+
 
 ---
 
